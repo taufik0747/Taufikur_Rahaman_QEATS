@@ -8,6 +8,7 @@
 package com.crio.qeats.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 // {
 //  "restaurantId": "10",
 //  "name": "A2B",
-//  "city": "Hsr Layout",
+//  ".city": "Hsr Layout",
 //  "imageUrl": "www.google.com",
 //  "latitude": 20.027,
 //  "longitude": 30.0,
@@ -32,8 +33,31 @@ import lombok.NoArgsConstructor;
 //    "South Indian"
 //  ]
 // }
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Restaurant {
+    @JsonIgnore
+    private String id;
+    @NotNull
+    private  String restaurantId;
+    @NotNull
+    private  String name;
+    @NotNull
+    private  String city;
+    @NotNull
+    private  String imageUrl;
+    @NotNull
+    private  double latitude;
+    @NotNull
+    private  double longitude;
+    @NotNull
+    private  String opensAt;
+    @NotNull
+    private  String closesAt;
+    @NotNull
+    private  ArrayList<String> attributes;
 
 }
 
