@@ -60,4 +60,3 @@ public class Restaurant {
     private  ArrayList<String> attributes;
 
 }
-
