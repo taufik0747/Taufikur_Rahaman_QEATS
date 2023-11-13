@@ -30,49 +30,29 @@ public class RestaurantServiceImpl implements RestaurantService {
 
   private final Double peakHoursServingRadiusInKms = 3.0;
   private final Double normalHoursServingRadiusInKms = 5.0;
+  
   @Autowired
   private RestaurantRepositoryService restaurantRepositoryService;
 
-
-  // TODO: CRIO_TASK_MODULE_RESTAURANTSAPI - Implement findAllRestaurantsCloseby.
-  // Check RestaurantService.java file for the interface contract.
+  
   @Override
   public GetRestaurantsResponse findAllRestaurantsCloseBy(
       GetRestaurantsRequest getRestaurantsRequest, LocalTime currentTime) {
-    //     List<Restaurant> restaurant;
-    //     if((currentTime.isAfter(LocalTime.of(8, 0)) && currentTime.isBefore(LocalTime.of(10, 0)))
-    //     || (currentTime.isAfter(LocalTime.of(13, 0)) && currentTime.isBefore(LocalTime.of(14, 0)))
-    //     || (currentTime.isAfter(LocalTime.of(19, 0)) && currentTime.isBefore(LocalTime.of(21, 0)))){
-
-    //     restaurant=restaurantRepositoryService.findAllRestaurantsCloseBy(getRestaurantsRequest.getLatitude(),getRestaurantsRequest.getLongitude(),currentTime,peakHoursServingRadiusInKms);
-        
-    //   }
-    //   else{
-    //     restaurant=restaurantRepositoryService.findAllRestaurantsCloseBy(getRestaurantsRequest.getLatitude(),getRestaurantsRequest.getLongitude(),currentTime,normalHoursServingRadiusInKms);
-      
-    //   }
-
-    // GetRestaurantsResponse response=new GetRestaurantsResponse(restaurant);
-    // log.info(response);
-    // return response;
-    // }
-
-    List<Restaurant> restaurant;
-    int h = currentTime.getHour();
-    int m = currentTime.getMinute();
-    if ((h >= 8 && h <= 9) || (h == 10 && m == 0) || (h == 13) || (h == 14 && m == 0) 
-          || (h >= 19 && h <= 20) || (h == 21 && m == 0)) {
-      restaurant = restaurantRepositoryService.findAllRestaurantsCloseBy(
-          getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), 
-          currentTime, peakHoursServingRadiusInKms);
-    } else {
-      restaurant = restaurantRepositoryService.findAllRestaurantsCloseBy(
-        getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), 
-        currentTime, normalHoursServingRadiusInKms);
-    }
-    GetRestaurantsResponse response = new GetRestaurantsResponse(restaurant);
-    log.info(response);
-    return response;
+        List<Restaurant> restaurants;
+        int hour = currentTime.getHour();
+        int minutes= currentTime.getMinute();
+        //Double latitude=getRestaurantsRequest.getLatitude();
+        //Double longitude=getRestaurantsRequest.getLongitude();
+        if((hour>=8 && hour <=9) || (hour==10 && minutes==0) ||(hour==13)|| (hour==14 && minutes==0||
+        (hour >=19 && hour <=20 || (hour==21 && minutes==0)))){
+          restaurants= restaurantRepositoryService.findAllRestaurantsCloseBy(getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), currentTime, peakHoursServingRadiusInKms);
+        }
+        else{
+          restaurants= restaurantRepositoryService.findAllRestaurantsCloseBy(getRestaurantsRequest.getLatitude(), getRestaurantsRequest.getLongitude(), currentTime, normalHoursServingRadiusInKms);
+        }
+        GetRestaurantsResponse response=  new GetRestaurantsResponse(restaurants);
+        log.info(response);
+        return response;
   }
 
 }
