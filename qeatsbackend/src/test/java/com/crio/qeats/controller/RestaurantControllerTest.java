@@ -214,7 +214,6 @@ public class RestaurantControllerTest {
 
     assertEquals(RESTAURANT_API_URI, uri.toString());
 
-    // calling api without latitude and longitude
     MockHttpServletResponse response = mvc.perform(
         get(uri.toString()).accept(APPLICATION_JSON_UTF8)
     ).andReturn().getResponse();

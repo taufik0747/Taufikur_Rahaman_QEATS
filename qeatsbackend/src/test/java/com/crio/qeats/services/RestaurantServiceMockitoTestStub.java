@@ -44,7 +44,9 @@ import org.springframework.test.context.ActiveProfiles;
 public class RestaurantServiceMockitoTestStub {
 
   protected static final String FIXTURES = "fixtures/exchanges";
-  
+
+  protected ObjectMapper objectMapper = new ObjectMapper();
+
   protected Restaurant restaurant1;
   protected Restaurant restaurant2;
   protected Restaurant restaurant3;
@@ -55,7 +57,8 @@ public class RestaurantServiceMockitoTestStub {
   protected RestaurantServiceImpl restaurantService;
   @MockBean
   protected RestaurantRepositoryService restaurantRepositoryServiceMock;
-  private ObjectMapper objectMapper;
+
+  
 
   @BeforeEach
   void setup() {
