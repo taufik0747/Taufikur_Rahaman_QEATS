@@ -14,11 +14,15 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 @SpringBootApplication
 @Log4j2
 public class QEatsApplication {
 
+  private static final Logger log = LogManager.getLogger(QEatsApplication.class);
   public static void main(String[] args) {
     SpringApplication.run(QEatsApplication.class, args);
 

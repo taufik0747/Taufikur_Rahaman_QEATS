@@ -23,11 +23,14 @@ import java.util.concurrent.Future;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Service
 @Log4j2
 public class RestaurantServiceImpl implements RestaurantService {
 
+  private static final Logger log = LogManager.getLogger(RestaurantServiceImpl.class);
   private final Double peakHoursServingRadiusInKms = 3.0;
   private final Double normalHoursServingRadiusInKms = 5.0;
   

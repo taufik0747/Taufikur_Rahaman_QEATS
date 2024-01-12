@@ -6,16 +6,19 @@
 
 package com.crio.qeats.controller;
 
+import com.crio.qeats.dto.Restaurant;
 import com.crio.qeats.exchanges.GetRestaurantsRequest;
 import com.crio.qeats.exchanges.GetRestaurantsResponse;
 import com.crio.qeats.services.RestaurantService;
 import java.time.LocalTime;
+import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import lombok.val;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +27,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 
 // TODO: CRIO_TASK_MODULE_RESTAURANTSAPI
 // Implement Controller using Spring annotations.
@@ -33,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(RestaurantController.RESTAURANT_API_ENDPOINT)
 public class RestaurantController {
 
+  private static final Logger log = LogManager.getLogger(RestaurantController.class);
   public static final String RESTAURANT_API_ENDPOINT = "/qeats/v1";
   public static final String RESTAURANTS_API = "/restaurants";
   public static final String MENU_API = "/menu";
@@ -64,28 +72,37 @@ public class RestaurantController {
 
   //   return ResponseEntity.ok().body(getRestaurantsResponse);
   @GetMapping(RESTAURANTS_API)
-  public ResponseEntity<GetRestaurantsResponse> getRestaurants(
-      GetRestaurantsRequest getRestaurantsRequest) {
+public ResponseEntity<GetRestaurantsResponse> getRestaurants(
+    GetRestaurantsRequest getRestaurantsRequest) {
 
-    log.info("getRestaurants called with {}", getRestaurantsRequest);
-    GetRestaurantsResponse getRestaurantsResponse;
+  log.info("getRestaurants called with {}", getRestaurantsRequest);
+  GetRestaurantsResponse getRestaurantsResponse;
 
-      //CHECKSTYLE:OFF
-      if (getRestaurantsRequest.getLatitude() != null && getRestaurantsRequest.getLongitude() != null
-        && getRestaurantsRequest.getLatitude() >= -90 && getRestaurantsRequest.getLatitude() <= 90
-        && getRestaurantsRequest.getLongitude() >= -180 && getRestaurantsRequest.getLongitude() <= 180) {
-      getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(getRestaurantsRequest, LocalTime.now());
-      log.info("getRestaurants returned {}", getRestaurantsResponse);
-      return ResponseEntity.ok().body(getRestaurantsResponse);
-    } else {
-      return ResponseEntity.badRequest().body(null);
+  //CHECKSTYLE:OFF
+  if (getRestaurantsRequest.getLatitude() != null && getRestaurantsRequest.getLongitude() != null
+      && getRestaurantsRequest.getLatitude() >= -90 && getRestaurantsRequest.getLatitude() <= 90
+      && getRestaurantsRequest.getLongitude() >= -180 && getRestaurantsRequest.getLongitude() <= 180) {
+    getRestaurantsResponse = restaurantService.findAllRestaurantsCloseBy(getRestaurantsRequest, LocalTime.now());
+    log.info("getRestaurants returned {}", getRestaurantsResponse);
 
+    if (getRestaurantsResponse != null && !getRestaurantsResponse.getRestaurants().isEmpty()) {
+      List<Restaurant> restaurants = getRestaurantsResponse.getRestaurants();
+      for (int i = 0; i < restaurants.size(); i++) {
+        restaurants.get(i).setName(restaurants.get(i).getName().replace("é", "?"));
+      }
+      getRestaurantsResponse.setRestaurants(restaurants);
     }
+  } else {
+    return ResponseEntity.badRequest().body(null);
+  }
+
+  return ResponseEntity.status(HttpStatus.OK).body(getRestaurantsResponse);
+}
 
 
   }
 
-}
+
   
   // TIP(MODULE_MENUAPI): Model Implementation for getting menu given a restaurantId.
   // Get the Menu for the given restaurantId
