@@ -8,11 +8,8 @@ package com.crio.qeats.exchanges;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import com.mongodb.lang.NonNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 // TODO: CRIO_TASK_MODULE_RESTAURANTSAPI
 //  Implement GetRestaurantsRequest.
