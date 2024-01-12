@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+// Java class that maps to Mongo collection.
 @Data
 @Document(collection = "restaurants")
 @NoArgsConstructor

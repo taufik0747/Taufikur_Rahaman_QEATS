@@ -24,6 +24,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.crio.qeats.QEatsApplication;
+import com.crio.qeats.exchanges.GetRestaurantsRequest;
+import com.crio.qeats.exchanges.GetRestaurantsResponse;
+import com.crio.qeats.services.RestaurantService;
+import com.crio.qeats.utils.FixtureHelpers;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.net.URI;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.NoSuchElementException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -43,6 +71,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 //  Pass all the RestaurantController test cases.
 //  Make modifications to the tests if necessary.
 //  Test RestaurantController by mocking RestaurantService.
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.UriComponentsBuilder;
+
 @SpringBootTest(classes = {QEatsApplication.class})
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 @AutoConfigureMockMvc
