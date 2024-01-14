@@ -1,4 +1,3 @@
-
 package com.crio.qeats.configs;
 
 import java.time.Duration;
@@ -127,4 +126,3 @@ public class RedisConfiguration {
 
 
 }
-

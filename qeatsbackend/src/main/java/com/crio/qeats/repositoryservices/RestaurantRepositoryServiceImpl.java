@@ -24,7 +24,11 @@ import ch.hsr.geohash.GeoHash;
 import com.crio.qeats.configs.RedisConfiguration;
 import com.crio.qeats.dto.Restaurant;
 import com.crio.qeats.globals.GlobalConstants;
+import com.crio.qeats.models.ItemEntity;
+import com.crio.qeats.models.MenuEntity;
 import com.crio.qeats.models.RestaurantEntity;
+import com.crio.qeats.repositories.ItemRepository;
+import com.crio.qeats.repositories.MenuRepository;
 import com.crio.qeats.repositories.RestaurantRepository;
 import com.crio.qeats.utils.GeoLocation;
 import com.crio.qeats.utils.GeoUtils;
@@ -46,6 +50,7 @@ import javax.inject.Provider;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -151,6 +156,195 @@ private List<Restaurant> findAllRestaurantsCloseFromDb(Double latitude, Double l
 
 
 
+  // public List<Restaurant> findAllRestaurantsCloseBy(Double latitude,
+  //     Double longitude, LocalTime currentTime, Double servingRadiusInKms) {
+
+  //   List<Restaurant> restaurants = null;
+
+
+
+
+  //   return restaurants;
+  // }
+
+  // TODO: CRIO_TASK_MODULE_RESTAURANTSEARCH
+  // Objective:
+  // Find restaurants whose names have an exact or partial match with the search query.
+  @Override
+  public List<Restaurant> findRestaurantsByName(Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+
+
+        BasicQuery query = new BasicQuery("{name: {$regex: /" + searchString + "/i}}");
+        List<RestaurantEntity> restaurants = mongoTemplate
+            .find(query, RestaurantEntity.class, "restaurants");
+        List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+    
+        for (RestaurantEntity restaurant : restaurants) {
+    
+          if (isRestaurantCloseByAndOpen(restaurant, currentTime,
+              latitude, longitude, servingRadiusInKms)) {
+            Restaurant r = new Restaurant();
+            r.setRestaurant(
+                restaurant.getId(),
+                restaurant.getRestaurantId(),
+                restaurant.getName(),
+                restaurant.getCity(),
+                restaurant.getImageUrl(),
+                restaurant.getLatitude(),
+                restaurant.getLongitude(),
+                restaurant.getOpensAt(),
+                restaurant.getClosesAt(),
+                restaurant.getAttributes()
+            );
+    
+            restaurantList.add(r);
+    
+          }
+    
+        }
+        return restaurantList;
+    
+  }
+  
+
+
+  // TODO: CRIO_TASK_MODULE_RESTAURANTSEARCH
+  // Objective:
+  // Find restaurants whose attributes (cuisines) intersect with the search query.
+  @Override
+  public List<Restaurant> findRestaurantsByAttributes(
+      Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+        BasicQuery query = new BasicQuery("{attributes: {$regex: /" + searchString + "/i}}");
+
+        List<RestaurantEntity> restaurants = mongoTemplate
+            .find(query, RestaurantEntity.class, "restaurants");
+
+        List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+    
+        for (RestaurantEntity restaurant : restaurants) {
+    
+          if (isRestaurantCloseByAndOpen(restaurant, currentTime,
+              latitude, longitude, servingRadiusInKms)) {
+            Restaurant r = new Restaurant();
+            r.setRestaurant(
+                restaurant.getId(),
+                restaurant.getRestaurantId(),
+                restaurant.getName(),
+                restaurant.getCity(),
+                restaurant.getImageUrl(),
+                restaurant.getLatitude(),
+                restaurant.getLongitude(),
+                restaurant.getOpensAt(),
+                restaurant.getClosesAt(),
+                restaurant.getAttributes()
+            );
+    
+            restaurantList.add(r);
+    
+          }
+    
+        }
+        return restaurantList;
+    
+  }
+
+
+
+
+  // TODO: CRIO_TASK_MODULE_RESTAURANTSEARCH
+  // Objective:
+  // Find restaurants which serve food items whose names form a complete or partial match
+  // with the search query.
+
+  @Override
+  public List<Restaurant> findRestaurantsByItemName(
+      Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+        BasicQuery query = new BasicQuery("{'items.name': {$regex: /" + searchString + "/i}}");
+
+        List<MenuEntity> menus = mongoTemplate.find(query, MenuEntity.class, "menus");
+
+        List<RestaurantEntity> restaurants = new ArrayList<>();
+        for (MenuEntity menu : menus) {
+          String restaurantId = menu.getRestaurantId();
+          BasicQuery restaurantQuery = new BasicQuery("{restaurantId:" + restaurantId + "}");
+          restaurants.add(mongoTemplate
+              .findOne(restaurantQuery, RestaurantEntity.class, "restaurants"));
+        }
+        List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+    
+        for (RestaurantEntity restaurant : restaurants) {
+    
+          if (isRestaurantCloseByAndOpen(restaurant, currentTime,
+              latitude, longitude, servingRadiusInKms)) {
+            Restaurant r = new Restaurant();
+            r.setRestaurant(
+                restaurant.getId(),
+                restaurant.getRestaurantId(),
+                restaurant.getName(),
+                restaurant.getCity(),
+                restaurant.getImageUrl(),
+                restaurant.getLatitude(),
+                restaurant.getLongitude(),
+                restaurant.getOpensAt(),
+                restaurant.getClosesAt(),
+                restaurant.getAttributes()
+            );
+    
+            restaurantList.add(r);
+    
+          }
+    
+        }
+        return restaurantList;
+    
+  }
+
+  // TODO: CRIO_TASK_MODULE_RESTAURANTSEARCH
+  // Objective:
+  // Find restaurants which serve food items whose attributes intersect with the search query.
+  @Override
+  public List<Restaurant> findRestaurantsByItemAttributes(Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+        BasicQuery query = new BasicQuery("{'items.attributes': {$regex: /" + searchString + "/i}}");
+        List<MenuEntity> menus = mongoTemplate.find(query, MenuEntity.class, "menus");
+        List<RestaurantEntity> restaurants = new ArrayList<>();
+        for (MenuEntity menu : menus) {
+          String restaurantId = menu.getRestaurantId();
+          BasicQuery restaurantQuery = new BasicQuery("{restaurantId:" + restaurantId + "}");
+          restaurants.add(mongoTemplate
+              .findOne(restaurantQuery, RestaurantEntity.class, "restaurants"));
+        }
+        List<Restaurant> restaurantList = new ArrayList<Restaurant>();
+    
+        for (RestaurantEntity restaurant : restaurants) {
+    
+          if (isRestaurantCloseByAndOpen(restaurant, currentTime,
+              latitude, longitude, servingRadiusInKms)) {
+            Restaurant r = new Restaurant();
+            r.setRestaurant(
+                restaurant.getId(),
+                restaurant.getRestaurantId(),
+                restaurant.getName(),
+                restaurant.getCity(),
+                restaurant.getImageUrl(),
+                restaurant.getLatitude(),
+                restaurant.getLongitude(),
+                restaurant.getOpensAt(),
+                restaurant.getClosesAt(),
+                restaurant.getAttributes()
+            );
+    
+            restaurantList.add(r);
+    
+          }
+    
+        }
+        return restaurantList;
+    
+  }
 
 
 

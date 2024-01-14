@@ -18,10 +18,11 @@ import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 // TODO: CRIO_TASK_MODULE_SERIALIZATION
 //  Implement Restaurant class.
-// Complete the class such that it produces the following JSON during serialization.
 // {
 //  "restaurantId": "10",
 //  "name": "A2B",
@@ -36,49 +37,58 @@ import lombok.NoArgsConstructor;
 //    "South Indian"
 //  ]
 // }
-@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
+@Data
+@Setter
 public class Restaurant {
-  @JsonProperty("restaurantId")
-  private String restaurantId;
-  @JsonProperty("name")
-  private String name;
-  @JsonProperty("city")
-  private String city;
-  @JsonProperty("imageUrl")
-  private String imageUrl;
-  @JsonProperty("latitude")
-  private double latitude;
-  @JsonProperty("longitude")
-  private double longitude;
-  @JsonProperty("opensAt")
-  private String opensAt;
-  @JsonProperty("closesAt")
-  private String closesAt;
-  @JsonProperty("attributes")
-  private List<String> attributes;
 
-  public String getRestaurantId() {
-    return restaurantId;
-  }
+    @JsonIgnore
+    private String id;
+    @NotNull
+    private String restaurantId;
+    @NotNull
+    private String name;
+    @NotNull
+    private String city;
+    @NotNull
+    private String imageUrl;
+    @NotNull
+    private Double latitude;
+    @NotNull
+    private Double longitude;
+    @NotNull
+    private String opensAt;
+    @NotNull
+    private String closesAt;
+    @NotNull
+    private List<String> attributes;
 
-  public void setLongitude(double d) {
-    this.longitude = d;
-
-  }
+    public void setRestaurant(
+        String id,
+        String restaurantId,
+        String name,
+        String city,
+        String imageUrl,
+        Double latitude,
+        Double longitude,
+        String opensAt,
+        String closesAt,
+        List<String> attributes
+    ) {
+      this.attributes = attributes;
+      this.id = id;
+      this.restaurantId = restaurantId;
+      this.name = name;
+      this.city = city;
+      this.imageUrl = imageUrl;
+      this.latitude = latitude;
+      this.longitude = longitude;
+      this.opensAt = opensAt;
+      this.closesAt = closesAt;
   
-  public void setLatitude(double d) {
-    this.latitude = d;
-  }
   
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String s) {
-    this.name = s;
-  }
-
+    }
+  
 }
