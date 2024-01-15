@@ -9,6 +9,7 @@ package com.crio.qeats.repositoryservices;
 import com.crio.qeats.dto.Restaurant;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import org.springframework.scheduling.annotation.Async;
 
@@ -64,6 +65,38 @@ public interface RestaurantRepositoryService {
    */
   List<Restaurant> findRestaurantsByItemAttributes(Double latitude, Double longitude,
       String searchString, LocalTime currentTime, Double servingRadiusInKms);
+
+      
+  CompletableFuture<List<Restaurant>> findRestaurantsByNameMT(Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms);
+
+  /**
+   * Get the list of open restaurants within the specified serving radius.
+   * @param searchString Query string for item attributes
+   * @return list of restaurants
+   */
+  CompletableFuture<List<Restaurant>> findRestaurantsByAttributesMT(
+      Double latitude, Double longitude, String searchString,
+      LocalTime currentTime, Double servingRadiusInKms);
+
+  /**
+   * Get the list of open restaurants within the specified serving radius which service item
+   * name in search string.
+   * @param searchString The food items to search for
+   * @return list of restaurants
+   */
+  CompletableFuture<List<Restaurant>> findRestaurantsByItemNameMT(Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms);
+
+  /**
+   * Get the list of open restaurants within the specified serving radius which have items of
+   * specified attributes in search string.
+   * @param searchString The item attributes to search for
+   * @return list of restaurants
+   */
+  CompletableFuture<List<Restaurant>> findRestaurantsByItemAttributesMT(Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms);
+  
 
 }
 

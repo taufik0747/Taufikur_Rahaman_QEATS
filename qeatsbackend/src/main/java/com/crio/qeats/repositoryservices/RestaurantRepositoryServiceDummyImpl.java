@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.scheduling.annotation.Async;
@@ -70,6 +71,34 @@ public class RestaurantRepositoryServiceDummyImpl implements RestaurantRepositor
 
   public List<Restaurant> findRestaurantsByItemAttributes(Double latitude, Double longitude,
       String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByNameMT(Double latitude,
+      Double longitude, String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByAttributesMT(Double latitude,
+      Double longitude, String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByItemNameMT(Double latitude,
+      Double longitude, String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByItemAttributesMT(Double latitude,
+      Double longitude, String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+    // TODO Auto-generated method stub
     return null;
   }
 

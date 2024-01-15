@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
@@ -64,6 +66,12 @@ public class RestaurantRepositoryServiceImpl implements RestaurantRepositoryServ
 
   @Autowired
   RestaurantRepository restaurantRepository;
+
+  @Autowired
+  MenuRepository menuRepository;
+
+  @Autowired
+  ItemRepository itemRepository;
 
 
   @Autowired
@@ -370,6 +378,120 @@ private List<Restaurant> findAllRestaurantsCloseFromDb(Double latitude, Double l
   }
 
 
+  @Async
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByNameMT(Double latitude, Double longitude, String searchString,
+      LocalTime currentTime, Double servingRadiusInKms) {
+
+    ModelMapper modelMapper = modelMapperProvider.get();
+    List<RestaurantEntity> restaurantEntities = (List<RestaurantEntity>) restaurantRepository
+        .findRestaurantsByNameExact(searchString).stream().collect(Collectors.toList()).get(0);
+
+    List<Restaurant> restaurants = new ArrayList<Restaurant>();
+
+    for (RestaurantEntity restaurantEntity : restaurantEntities) {
+      if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude, longitude, servingRadiusInKms)) {
+        restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
+      }
+    }
+
+    return CompletableFuture.completedFuture(restaurants);
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByAttributesMT(Double latitude, Double longitude, String searchString,
+      LocalTime currentTime, Double servingRadiusInKms) {
+
+    ModelMapper modelMapper = modelMapperProvider.get();
+    List<RestaurantEntity> restaurantEntities = (List<RestaurantEntity>) restaurantRepository
+        .findRestaurantsByAttributesExact(searchString).stream().collect(Collectors.toList()).get(0);
+
+    List<Restaurant> restaurants = new ArrayList<Restaurant>();
+
+    for (RestaurantEntity restaurantEntity : restaurantEntities) {
+      if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude, longitude, servingRadiusInKms)) {
+        restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
+      }
+    }
+
+    return CompletableFuture.completedFuture(restaurants);
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByItemNameMT(Double latitude, Double longitude, String searchString,
+      LocalTime currentTime, Double servingRadiusInKms) {
+
+    ModelMapper modelMapper = modelMapperProvider.get();
+    List<ItemEntity> itemEntity = itemRepository.findRestaurantsByItemName(searchString).stream()
+        .collect(Collectors.toList());
+
+    List<String> itemsStr = new ArrayList<String>();
+    for (ItemEntity Ie : itemEntity) {
+      itemsStr.add(Ie.getId());
+    }
+
+    List<MenuEntity> menuEntity = menuRepository.findMenusByItemsItemIdIn(
+                                              itemsStr).stream().collect(Collectors.toList()).get(0);
+
+        List<String> restIds = new ArrayList<String>();
+
+        for (MenuEntity Me: menuEntity){
+          restIds.add(Me.getRestaurantId());
+      }
+
+
+      List<RestaurantEntity> restaurantEntities =  restaurantRepository.findRestaurantsByid(restIds);
+
+
+        List<Restaurant> restaurants = new ArrayList<Restaurant>();
+        
+        for (RestaurantEntity restaurantEntity : restaurantEntities) {
+          if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude, longitude, servingRadiusInKms)) {
+            restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
+          }
+        }
+        
+  
+  
+        return CompletableFuture.completedFuture(restaurants);
+  }
+
+  @Async
+  @Override
+  public CompletableFuture<List<Restaurant>> findRestaurantsByItemAttributesMT(Double latitude, Double longitude,
+      String searchString, LocalTime currentTime, Double servingRadiusInKms) {
+
+      ModelMapper modelMapper = modelMapperProvider.get();
+      List<ItemEntity> lisItems =  itemRepository.findRestaurantsByItemAtt(searchString);
+      List<String> itemsStr = new ArrayList<String>();
+      for (ItemEntity Ie: lisItems){
+          itemsStr.add(Ie.getId());
+      }
+    
+      List<MenuEntity> menuEntity = menuRepository.findMenusByItemsItemIdIn(
+                                      itemsStr).stream().collect(Collectors.toList()).get(0);
+
+      List<String> restIds = new ArrayList<String>();
+
+      for (MenuEntity Me: menuEntity){
+        restIds.add(Me.getRestaurantId());
+      }
+
+    List<RestaurantEntity> restaurantEntities =  restaurantRepository.findRestaurantsByid(restIds);
+
+      List<Restaurant> restaurants = new ArrayList<Restaurant>();
+      
+      for (RestaurantEntity restaurantEntity : restaurantEntities) {
+        if (isRestaurantCloseByAndOpen(restaurantEntity, currentTime, latitude, longitude, servingRadiusInKms)) {
+          restaurants.add(modelMapper.map(restaurantEntity, Restaurant.class));
+        }
+      }
+
+      return CompletableFuture.completedFuture(restaurants);
+
+  }
 
 }
 

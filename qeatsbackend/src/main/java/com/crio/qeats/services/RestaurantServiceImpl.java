@@ -19,11 +19,14 @@ import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import lombok.extern.log4j.Log4j2;
@@ -140,5 +143,66 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
     
     
+  // private final Double peakHoursServingRadiusInKms = 3.0;
+  // private final Double normalHoursServingRadiusInKms = 5.0;
+  // @Autowired
+  // private RestaurantRepositoryService restaurantRepositoryService;
+
+
+  // @Override
+  // public GetRestaurantsResponse findAllRestaurantsCloseBy(
+  //     GetRestaurantsRequest getRestaurantsRequest, LocalTime currentTime) {
+
+
+  // }
+
+
+  // @Override
+  // public GetRestaurantsResponse findRestaurantsBySearchQuery(
+  //     GetRestaurantsRequest getRestaurantsRequest, LocalTime currentTime) {
+
+  // }
+
+  // TODO: CRIO_TASK_MODULE_MULTITHREADING
+  // Implement multi-threaded version of RestaurantSearch.
+  // Implement variant of findRestaurantsBySearchQuery which is at least 1.5x time faster than
+  // findRestaurantsBySearchQuery.
+  @Override
+  public GetRestaurantsResponse findRestaurantsBySearchQueryMt(
+      GetRestaurantsRequest getRestaurantsRequest, LocalTime currentTime) {
+
+        LinkedHashSet<Restaurant> restaurantsHash = new LinkedHashSet<Restaurant>();
+        String searchString = getRestaurantsRequest.getSearchFor();
+        List<Restaurant> restaurants = new ArrayList<Restaurant>();
+        if (searchString != "") {
+          Double latitude = getRestaurantsRequest.getLatitude();
+          Double longitude = getRestaurantsRequest.getLongitude();
+          Double servingRadiusInKms = isPeakHour(currentTime) ? peakHoursServingRadiusInKms : normalHoursServingRadiusInKms;
+    
+          CompletableFuture<List<Restaurant>> l1 = restaurantRepositoryService.findRestaurantsByNameMT(latitude, longitude,
+              searchString, currentTime, servingRadiusInKms);
+    
+          CompletableFuture<List<Restaurant>> l2 = restaurantRepositoryService.findRestaurantsByAttributesMT(latitude,
+              longitude, searchString, currentTime, servingRadiusInKms);
+    
+          CompletableFuture<List<Restaurant>> l3 = restaurantRepositoryService.findRestaurantsByItemNameMT(latitude,
+              longitude, searchString, currentTime, servingRadiusInKms);
+    
+          CompletableFuture<List<Restaurant>> l4 = restaurantRepositoryService.findRestaurantsByItemAttributesMT(latitude,
+              longitude, searchString, currentTime, servingRadiusInKms);
+    
+          CompletableFuture.allOf(l1, l2, l3, l4).join();
+      
+          restaurantsHash.addAll((Collection<? extends Restaurant>) l1);
+          restaurantsHash.addAll((Collection<? extends Restaurant>) l2);
+          restaurantsHash.addAll((Collection<? extends Restaurant>) l3);
+          restaurantsHash.addAll((Collection<? extends Restaurant>) l4);
+    
+          restaurants = new ArrayList<Restaurant>(restaurantsHash);
+          
+        }
+          return new GetRestaurantsResponse(restaurants);
+    
+      }
 }
 
